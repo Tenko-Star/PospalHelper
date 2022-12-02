@@ -71,9 +71,9 @@ abstract class BaseClient
             $options['headers'] = array_merge($options['headers'] ?? [], ['Content-Type' => 'application/json']);
 
             if (empty($options['json'])) {
-                $options['body'] = \GuzzleHttp\json_encode($options['json'], JSON_FORCE_OBJECT);
+                $options['body'] = json_encode($options['json'], JSON_FORCE_OBJECT);
             } else {
-                $options['body'] = \GuzzleHttp\json_encode($options['json'], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
+                $options['body'] = json_encode($options['json'], JSON_UNESCAPED_UNICODE|JSON_NUMERIC_CHECK);
             }
 
             unset($options['json']);
@@ -107,7 +107,7 @@ abstract class BaseClient
     {
         $response = $this->post($url, $data, $options);
         if (isset($response['errorCode']) && $response['status'] === 'error') {
-            throw new RequestException(isset($response['messages']) ? $response['messages'][0] : '', $response['errorCode']);
+            throw new RequestException(isset($response['messages']) ? $response['messages'][0] : '', $response['errorCode'] ?? 0);
         }
 
         return $response['data'];
