@@ -7,14 +7,26 @@ use PospalHelper\Core\Exception\PospalException;
 abstract class BaseIterator implements \Iterator
 {
     private ?array $current = null;
+
     private \Closure $getter;
+
     private ?array $postBackParams = null;
+
     private int $pageSize = 0;
-    private bool $isEnd = false;
+
+    private bool $isEnd;
+
+    private bool $needGetNext;
+
+    private int $count;
+    private int $max = 0;
 
     public function __construct(\Closure $getter)
     {
         $this->getter = $getter;
+        $this->count = 0;
+        $this->isEnd = false;
+        $this->needGetNext = false;
     }
 
     public function set(array $data)
@@ -28,51 +40,46 @@ abstract class BaseIterator implements \Iterator
      */
     public function current(): array
     {
-        if ($this->current === null) {
-            $this->next();
+        var_dump('current check', $this->needGetNext && !$this->isEnd);
+        if ($this->needGetNext && !$this->isEnd) {
+            $getter = $this->getter;
+            $response = $getter($this->postBackParams);
+            if ($response->isEnd() || ($this->max > 0 && $this->count > $this->max)) {
+                $this->isEnd = true;
+            }
+
+            $this->current = $response->data;
+            $this->postBackParams = $response->params;
+            $this->pageSize = $response->pageSize;
+
+            $this->needGetNext = false;
+            $this->count++;
         }
 
         return $this->current;
     }
 
-    /**
-     * @throws PospalException
-     * @return array
-     */
-    public function next(): ?array
+    public function next(): void
     {
-        if ($this->isEnd()) {
-            return null;
-        }
-
-        $getter = $this->getter;
-        $response = $getter($this->postBackParams);
-        if (!$response->hasParams()) {
-            $this->isEnd = true;
-            return $this->current;
-        }
-
-        $this->current = $response->data;
-        $this->postBackParams = $response->params;
-        $this->pageSize = $response->pageSize;
-
-        return $this->current;
+        $this->needGetNext = true;
     }
 
-    public function key(): array
+    public function key(): ?array
     {
         return $this->postBackParams;
     }
 
     public function valid(): bool
     {
-        return true;
+        return !$this->isEnd;
     }
 
     public function rewind()
     {
         $this->postBackParams = null;
-        $this->next();
+        $this->count = 0;
+        $this->isEnd = false;
+        $this->needGetNext = true;
     }
 
     public function getSize(): int
@@ -80,8 +87,8 @@ abstract class BaseIterator implements \Iterator
         return $this->pageSize;
     }
 
-    public function isEnd(): bool
+    public function setMax(int $max)
     {
-        return $this->isEnd;
+        $this->max = $max;
     }
 }

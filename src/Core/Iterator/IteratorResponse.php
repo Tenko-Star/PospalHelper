@@ -15,8 +15,8 @@ class IteratorResponse
         $this->pageSize = $pageSize;
     }
 
-    public function hasParams(): bool
+    public function isEnd(): bool
     {
-        return !empty($this->params);
+        return count($this->data) < $this->pageSize;
     }
 }
