@@ -26,7 +26,7 @@ abstract class BaseIterator implements \Iterator
         $this->getter = $getter;
         $this->count = 0;
         $this->isEnd = false;
-        $this->needGetNext = false;
+        $this->needGetNext = true;
     }
 
     public function set(array $data)
@@ -40,7 +40,6 @@ abstract class BaseIterator implements \Iterator
      */
     public function current(): array
     {
-        var_dump('current check', $this->needGetNext && !$this->isEnd);
         if ($this->needGetNext && !$this->isEnd) {
             $getter = $this->getter;
             $response = $getter($this->postBackParams);

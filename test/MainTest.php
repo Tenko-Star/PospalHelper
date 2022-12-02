@@ -66,7 +66,7 @@ class MainTest extends TestCase
             // 第一页数据
             $page1 = $iter->current();
             $this->assertIsArray($page1);
-            $this->assertArrayHasKey('customrUid', $page1);
+            $this->assertArrayHasKey('customerUid', $page1[0]);
             // 第n页数据
             $iter->next();
             $pageN = $iter->current();

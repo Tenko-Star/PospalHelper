@@ -37,6 +37,9 @@ abstract class BaseClient
         $this->baseUri = rtrim($this->config->get('baseUri', ''), '/');
     }
 
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     protected function request(string $url, string $method, array $options = []): array
     {
         $method = strtoupper($method);
