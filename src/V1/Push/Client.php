@@ -9,6 +9,11 @@ use PospalHelper\Core\Exception\RequestException;
 class Client extends BaseClient
 {
     /**
+     * @var array<\Closure>
+     */
+    private array $handler = [];
+
+    /**
      * 处理推送的信息
      *
      * @param \Closure $handler 处理函数
@@ -48,12 +53,22 @@ class Client extends BaseClient
             'appId' => $appKey
         ];
 
-        $result = $handler($type, $data, $config);
-        if (is_null($result)) {
-           $this->success();
+        try {
+            $result = $handler($type, $data, $config);
+            if (is_null($result)) {
+                $this->success();
+            }
+        } catch (\Throwable $any) {
+            $this->error($any->getMessage(), $any->getCode());
         }
 
         $this->error($result);
+    }
+
+    public function setErrorHandler(\Closure $handler): Client
+    {
+        $this->handler[] = $handler;
+        return $this;
     }
 
     /**
@@ -99,6 +114,17 @@ class Client extends BaseClient
     private function error($message = 'Bad Request', $code = 400) {
         http_response_code($code);
         echo $message;
+
+        if (!empty($this->handler)) {
+            try {
+                foreach ($this->handler as $handler) {
+                    @$handler($message, $code);
+                }
+            } catch (\Throwable $throwable) {
+                // do nothing
+            }
+        }
+
         exit;
     }
 
