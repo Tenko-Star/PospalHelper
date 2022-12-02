@@ -1,0 +1,32 @@
+{
+  "name": "tenko/pospal-helper",
+  "description": "Pospal Api Helper",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "PospalHelper\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Tenko",
+      "email": "admin@tenko.life"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=7.4",
+    "ext-fileinfo": "*",
+    "ext-openssl": "*",
+    "guzzlehttp/guzzle": "7.0",
+    "pimple/pimple": "^3.5",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-simplexml": "*",
+    "ext-libxml": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "9.5.x-dev"
+  }
+}
