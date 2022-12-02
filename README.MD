@@ -2,7 +2,8 @@
 
 ## 最低需求
 
-- PHP > 7.4
+- PHP: >=7.4
+- guzzlehttp/guzzle: ^6.5
 
 ## 使用方法
 ```php
