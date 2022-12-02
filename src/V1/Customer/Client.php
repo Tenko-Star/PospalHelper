@@ -325,7 +325,7 @@ class Client extends BaseClient
      * @throws RequestException
      * @throws UnexpectedParamsException
      */
-    public function updateCustomerPassword(string $customerUid, string $customerPassword): array
+    public function updateCustomerPassword(string $customerUid, string $customerPassword): bool
     {
         $uri = '/pospal-api2/openapi/v1/customerOpenApi/updateCustomerPassword';
         $config = $this->getConfig();
@@ -340,6 +340,11 @@ class Client extends BaseClient
             throw new UnexpectedParamsException($validator->getError());
         }
 
-        return $this->query($uri, $data);
+        $response = $this->post($uri, $data);
+        if (isset($response['errorCode']) && $response['status'] === 'error') {
+            throw new RequestException(isset($response['messages']) ? $response['messages'][0] : '', $response['errorCode']);
+        }
+
+        return true;
     }
 }
