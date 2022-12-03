@@ -66,6 +66,20 @@ class IntegerValidator implements ValidatorInterface
                         return false;
                     }
                     break;
+                case 'in':
+                    $checkList = [];
+                    foreach ($list as $num) {
+                        if (is_numeric($num)) {
+                            $checkList[] = (int)$num;
+                        }
+                    }
+
+                    if (!in_array($data[$name], $checkList)) {
+                        $list = implode(', ', $checkList);
+                        $this->message = "The value of the variable is out of the allowed range: [{$list}]";
+                        return false;
+                    }
+                    break;
                 default:
                     break;
             }
