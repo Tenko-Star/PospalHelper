@@ -79,10 +79,10 @@ abstract class BaseValidator
         return empty($this->errors);
     }
 
-    public function add(string $name, array $rule, array $message): BaseValidator
+    public function add(string $name, array $rule, array $message = null): BaseValidator
     {
         $this->rules[$name] = $rule;
-        $this->message[$name] = $message;
+        if ($message) $this->message[$name] = $message;
         return $this;
     }
 
