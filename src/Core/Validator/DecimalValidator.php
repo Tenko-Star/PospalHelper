@@ -49,20 +49,20 @@ class DecimalValidator implements ValidatorInterface
                         return false;
                     }
 
-                    $min = (int)$list[0];
-                    $max = (int)$list[1];
+                    $min = (float)$list[0];
+                    $max = (float)$list[1];
                     if ($min > $max) {
-                        $min = $min ^ $max;
-                        $max = $min ^ $max;
-                        $min = $min ^ $max;
+                        $temp = $min;
+                        $min = $max;
+                        $max = $temp;
                     }
 
-                    if ($data[$name] < $min) {
+                    if ((float)$data[$name] < $min) {
                         $this->message = "The variable must be between $list[0] and $list[1]";
                         return false;
                     }
 
-                    if ($data[$name] > $max) {
+                    if ((float)$data[$name] > $max) {
                         $this->message = "The variable must be between $list[0] and $list[1]";
                         return false;
                     }
