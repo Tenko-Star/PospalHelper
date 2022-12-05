@@ -27,7 +27,7 @@ class DecimalValidator implements ValidatorInterface
                         return false;
                     }
 
-                    if ($data[$name] < $list[0]) {
+                    if (bccomp($data[$name], $list[0], 12) === -1) {
                         $this->message = "The variable cannot be less than $list[0]";
                         return false;
                     }
@@ -38,7 +38,7 @@ class DecimalValidator implements ValidatorInterface
                         return false;
                     }
 
-                    if ($data[$name] > $list[0]) {
+                    if (bccomp($data[$name], $list[0], 12) === 1) {
                         $this->message = "The variable cannot be greater than $list[0]";
                         return false;
                     }
@@ -49,20 +49,20 @@ class DecimalValidator implements ValidatorInterface
                         return false;
                     }
 
-                    $min = (float)$list[0];
-                    $max = (float)$list[1];
-                    if ($min > $max) {
+                    $min = $list[0];
+                    $max = $list[1];
+                    if (bccomp($min, $max, 12) === 1) {
                         $temp = $min;
                         $min = $max;
                         $max = $temp;
                     }
 
-                    if ((float)$data[$name] < $min) {
+                    if (bccomp($data[$name], $min, 12) === -1) {
                         $this->message = "The variable must be between $list[0] and $list[1]";
                         return false;
                     }
 
-                    if ((float)$data[$name] > $max) {
+                    if (bccomp($data[$name], $max, 12) === 1) {
                         $this->message = "The variable must be between $list[0] and $list[1]";
                         return false;
                     }
