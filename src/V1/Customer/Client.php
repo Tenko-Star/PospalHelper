@@ -8,6 +8,10 @@ use PospalHelper\Core\Exception\RequestException;
 use PospalHelper\Core\Exception\UnexpectedBodyException;
 use PospalHelper\Core\Exception\UnexpectedParamsException;
 use PospalHelper\Core\Iterator\IteratorResponse;
+use PospalHelper\V1\Customer\Validator\CustomerBPValidator;
+use PospalHelper\V1\Customer\Validator\CustomerCategoriesValidator;
+use PospalHelper\V1\Customer\Validator\CustomerInfoValidator;
+use PospalHelper\V1\Customer\Validator\CustomerPasswordValidator;
 
 /**
  * 会员API
@@ -92,6 +96,7 @@ class Client extends BaseClient
      * @param array $customerInfo
      * @return array
      * @throws RequestException
+     * @throws UnexpectedParamsException
      */
     public function updateBaseInfo(array $customerInfo): array
     {
@@ -99,10 +104,16 @@ class Client extends BaseClient
 
         $uri = '/pospal-api2/openapi/v1/customerOpenApi/queryByUid';
         $config = $this->getConfig();
+        $validator = new CustomerInfoValidator();
+
+        $result = $validator->check($filtered, $customerInfo);
+        if (!$result) {
+            throw new UnexpectedParamsException($validator->getError());
+        }
 
         $req = [
             'appId' => $config['appId'],
-            'customerInfo' => $customerInfo,
+            'customerInfo' => $filtered,
         ];
 
         return $this->query($uri, $req);
@@ -111,49 +122,31 @@ class Client extends BaseClient
     /**
      * 修改会员余额积分
      *
-     * @param string $customerUid
-     * @param string|null $balanceIncrement
-     * @param string|null $pointIncrement
-     * @param bool $validateBalance
-     * @param bool $validatePoint
+     * @param array $data
+     * @param bool $validateBalance 是否需要验证金额
+     * @param bool $validatePoint 是否需要验证积分
+     * @param bool $strict 是否启用$data的严格验证，传true则会强制验证，验证规则见<a href="https://github.com/Tenko-Star/PospalHelper/blob/master/doc/Validator.md">这里</a>
      * @return array
      * @throws RequestException
      * @throws UnexpectedParamsException
      */
-    public function updateBalancePointByIncrement(
-        string $customerUid, ?string $balanceIncrement = null, ?string $pointIncrement = null,
-        bool $validateBalance = false, bool $validatePoint = false
-    ): array
+    public function updateBalancePointByIncrement(array $data, bool $validateBalance = false, bool $validatePoint = false, bool $strict = false): array
     {
         $uri = '/pospal-api2/openapi/v1/customerOpenApi/updateBalancePointByIncrement';
         $config = $this->getConfig();
-        $data = [
+        $validator = new CustomerBPValidator();
+
+        $result = $validator->check($filtered, $data);
+        if (!$result) {
+            throw new UnexpectedParamsException($validator->getError());
+        }
+
+        $data = array_merge($filtered, [
             'appId' => $config['appId'],
-            'customerUid' => $customerUid,
             'dataChangeTime' => date('Y-m-d H:i:s'),
-        ];
-
-        if (!$balanceIncrement && !$pointIncrement) {
-            throw new UnexpectedParamsException('At least one parameter is required in balanceIncrement or pointIncrement.');
-        }
-
-        if (is_numeric($balanceIncrement)) {
-            $data += [
-                'balanceIncrement' => $balanceIncrement,
-                'validateBalance' => (int)$validateBalance
-            ];
-        }
-
-        if (is_numeric($pointIncrement)) {
-            $data += [
-                'pointIncrement' => $balanceIncrement,
-                'validatePoint' => (int)$validatePoint
-            ];
-        }
-
-        if (!(isset($data['balanceIncrement']) || isset($data['pointIncrement']))) {
-            throw new UnexpectedParamsException('Param balanceIncrement or pointIncrement must be a numeric string.');
-        }
+            'validateBalance' => (int)$validateBalance,
+            'validatePoint' => (int)$validatePoint,
+        ]);
 
         return $this->query($uri, $data);
     }
@@ -162,21 +155,34 @@ class Client extends BaseClient
      * 添加会员
      *
      * @param array $customerInfo
+     * @param bool $strict 是否启用$customerInfo严格验证，传true则会强制验证，验证规则见<a href="https://github.com/Tenko-Star/PospalHelper/blob/master/doc/Validator.md">这里</a>
      * @return array
      * @throws RequestException
      * @throws UnexpectedParamsException
      */
-    public function add(array $customerInfo): array
+    public function add(array $customerInfo, bool $strict = false): array
     {
-        if (!(isset($customerInfo['number']) && isset($customerInfo['name']))) {
-            throw new UnexpectedParamsException('Param customerInfo must has a number and name');
-        }
-
         $uri = '/pospal-api2/openapi/v1/customerOpenApi/add';
         $config = $this->getConfig();
+        $validator = new CustomerInfoValidator();
+
+        if ($strict) {
+            $result = $validator
+                ->except('customerUid')
+                ->add('point', ['decimal'])
+                ->add('balance', ['decimal'])
+                ->data($customerInfo)
+                ->check($filtered);
+            if (!$result) {
+                throw new UnexpectedParamsException($validator->getError());
+            }
+        } else {
+            $filtered = $customerInfo;
+        }
+
         $data = [
             'appId' => $config['appId'],
-            'customerInfo' => $customerInfo
+            'customerInfo' => $filtered
         ];
 
         return $this->query($uri, $data);
