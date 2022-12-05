@@ -96,4 +96,39 @@ class MainTest extends TestCase
             // 其他处理...
         }
     }
+
+    public function testAdd()
+    {
+        $app = Factory::v1([
+            'baseUri' => 'https://area62-win.pospal.cn:443',
+            'appId' => 'A2F6EEAE53E6A28CB7DFB0D970751093',
+            'appKey' => '33606033555923593',
+
+            'http.verify' => false,
+        ]);
+
+        $customer = [
+            'name' => 'name',
+            'number' => '',
+            'phone' => '',
+            'birthday' => '',
+            'qq' => '',
+            'email' => '',
+            'address' => '',
+            'remarks' => '',
+            'enable' => 1,
+            'categoryName' => '',
+            'discount' => '100',
+            'onAccount' => 1,
+            'expiryDate' => '2022-12-31 23:59:59',
+            'extInfo' => [
+                'sex' => 1,
+                'nickName' => ''
+            ]
+        ];
+
+        $result = $app->customer->add($customer);
+
+        $this->assertIsArray($result);
+    }
 }
