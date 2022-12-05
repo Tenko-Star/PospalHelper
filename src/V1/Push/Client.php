@@ -34,12 +34,12 @@ class Client extends BaseClient
         }
 
         $signature = $header['data-signature'] ?? '';
-        $appKey = $params['appId'] ?? '';
-        if (empty($signature) || empty($appKey)) {
+        $appId = $params['appId'] ?? '';
+        if (empty($signature) || empty($appId)) {
             $this->error('Forbidden', 403);
         }
 
-        $checking = strtoupper(md5($appKey . $raw));
+        $checking = strtoupper(md5($appId . $raw));
         if ($checking !== $signature) {
             $this->error('Forbidden', 403);
         }
@@ -50,7 +50,7 @@ class Client extends BaseClient
             'pushTime' => $params['timestamp'] ?? time(),
             'bornTime' => $params['bornTimeStamp'] ?? 0,
             'version' => $params['version'] ?? 'unknown',
-            'appId' => $appKey
+            'appId' => $appId
         ];
 
         try {
