@@ -1,6 +1,6 @@
 <?php
 
-namespace PospalHelper\V1\Customer;
+namespace PospalHelper\V1\Customer\Validator;
 
 use PospalHelper\Core\BaseValidator;
 
