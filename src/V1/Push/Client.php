@@ -33,15 +33,21 @@ class Client extends BaseClient
             $this->error();
         }
 
-        $signature = $header['data-signature'] ?? '';
-        $appId = $params['appId'] ?? '';
-        if (empty($signature) || empty($appId)) {
-            $this->error('Forbidden', 403);
+        foreach ($header as $key => $value) {
+            $header[strtolower($key)] = $value;
         }
 
-        $checking = strtoupper(md5($appId . $raw));
+        $signature = $header['data-signature'] ?? '';
+        $appId = $params['appId'] ?? '';
+        $configId = $this->config['appId'] ?? '';
+        $appKey = $this->config['appKey'] ?? '';
+        if (empty($signature) || $appId !== $configId) {
+            $this->error('Forbidden: Signature or configuration information is missing', 403);
+        }
+
+        $checking = strtoupper(md5($appKey . $raw));
         if ($checking !== $signature) {
-            $this->error('Forbidden', 403);
+            $this->error('Forbidden: Incorrect signature', 403);
         }
 
         $body = $params['body'] ?? '';
