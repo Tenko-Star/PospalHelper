@@ -108,7 +108,10 @@ class Client extends BaseClient
             'pushUrl' => $url
         ];
 
-        $this->query($uri, $req);
+        $response = $this->post($uri, $req);
+        if (isset($response['errorCode']) && $response['status'] === 'error') {
+            throw new RequestException(isset($response['messages']) ? $response['messages'][0] : '', $response['errorCode'] ?? 0);
+        }
     }
 
     private function error($message = 'Bad Request', $code = 400) {
