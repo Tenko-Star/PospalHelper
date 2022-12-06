@@ -85,7 +85,7 @@ abstract class BaseClient
         return $options;
     }
 
-    public function get(string $url, array $params, array $options = []): array
+    public function get(string $url, array &$params, array $options = []): array
     {
         $options['headers'] = array_merge($options['headers'], $this->sign($params));
 
@@ -98,7 +98,7 @@ abstract class BaseClient
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function post(string $url, array $data, array $options = []): array
+    public function post(string $url, array &$data, array $options = []): array
     {
         $options['headers'] = array_merge($options['headers'] ?? [], $this->sign($data));
 
@@ -106,7 +106,7 @@ abstract class BaseClient
         return $this->request($url, 'POST', $options);
     }
 
-    public function query(string $url, array $data, array $options = []): array
+    public function query(string $url, array &$data, array $options = []): array
     {
         $response = $this->post($url, $data, $options);
         if (isset($response['errorCode']) && $response['status'] === 'error') {
@@ -116,7 +116,7 @@ abstract class BaseClient
         return $response['data'];
     }
 
-    protected function sign(array $data): array
+    protected function sign(array &$data): array
     {
         switch ($this->version) {
             case self::SIGN_VERSION_V1:
