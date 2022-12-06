@@ -44,7 +44,9 @@ class Client extends BaseClient
             $this->error('Forbidden', 403);
         }
 
-        $data = $params['body'] ?? [];
+        $body = $params['body'] ?? '';
+
+        $data = is_string($body) ? json_decode($body, true) : $body;
         $type = $params['cmd'] ?? '';
         $config = [
             'pushTime' => $params['timestamp'] ?? time(),
