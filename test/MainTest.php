@@ -1,5 +1,6 @@
 <?php
 
+include_once 'function.php';
 
 use PospalHelper\Factory;
 use PHPUnit\Framework\TestCase;
@@ -94,6 +95,34 @@ class MainTest extends TestCase
             // 打印返回的错误码
             echo $e->getCode();
             // 其他处理...
+        }
+    }
+
+    public function testAccess() {
+        $app = Factory::v1([
+            // 基础配置
+            'baseUri' => env('BaseUri'),
+            'appId' => env('AppId'),
+            'appKey' => env('AppKey'),
+
+            'http.proxy' => 'http://127.0.0.1:9999',
+            'http.verify' => false
+
+            // 其他配置
+            // ...
+        ]);
+
+        try {
+            $result = $app->access->queryAccessTimes();
+            $this->assertIsArray($result);
+            file_put_contents('access_times.json', json_encode($result));
+
+            $result = $app->access->queryDailyAccessTimesLog(new DateTimeImmutable('2022-12-1'), new DateTimeImmutable('2022-12-6'));
+            $this->assertIsArray($result);
+            file_put_contents('daily_access_times.json', json_encode($result));
+        } catch (\PospalHelper\Core\Exception\PospalException $e) {
+            file_put_contents('test_access_trace.json', json_encode($e->getTrace()));
+            $this->fail($e->getMessage());
         }
     }
 }
