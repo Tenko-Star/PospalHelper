@@ -11,9 +11,9 @@ class MainTest extends TestCase
     {
         $appV1 = Factory::v1([
             // 基础配置
-            'baseUri' => 'https://area62-win.pospal.cn:443',
-            'appId' => '',
-            'appKey' => '',
+            'baseUri' => env('BaseUri'),
+            'appId' => env('AppId'),
+            'appKey' => env('AppKey'),
 
             // Guzzle 配置
             // 配置代理以便抓包分析
