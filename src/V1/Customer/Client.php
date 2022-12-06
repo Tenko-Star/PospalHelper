@@ -134,11 +134,15 @@ class Client extends BaseClient
     {
         $uri = '/pospal-api2/openapi/v1/customerOpenApi/updateBalancePointByIncrement';
         $config = $this->getConfig();
-        $validator = new CustomerBPValidator();
 
-        $result = $validator->check($filtered, $data);
-        if (!$result) {
-            throw new UnexpectedParamsException($validator->getError());
+        if ($strict) {
+            $validator = new CustomerBPValidator();
+            $result = $validator->check($filtered, $data);
+            if (!$result) {
+                throw new UnexpectedParamsException($validator->getError());
+            }
+        } else {
+            $filtered = $data;
         }
 
         $data = array_merge($filtered, [
